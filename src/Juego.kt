@@ -1,25 +1,32 @@
 class Juego {
     fun juego(tablero: Tablero){
+        var win: Boolean? = null
         var ronda = 1
         val tipos = mutableListOf<String>("Cara","Cruz")
         val jugadores = elegirTipo(tipos)
         var jugar = true
-        while (jugar)
-            turnoJ1(tablero, ronda, jugadores)
-            turnoJ2(tablero, ronda, jugadores)
+        while (jugar) {
+            win = turnoJ1(tablero, ronda, jugadores)
+            if (win == true){
+                print("J1 GANA")
+                break
+            }
+            win = turnoJ2(tablero, ronda, jugadores)
+            if (win == true){
+                print("J2 GANA")
+                break
+            }
             ronda += 1
-            if (ronda >= 5){
+            if (ronda >= 5) {
                 println("¿Quereís seguir jugando? (s/n)")
                 val respuesta = readln().lowercase()
-                if (respuesta == "s"){
+                if (respuesta == "s") {
                     tablero.reset(tablero)
-                }
-                else if (respuesta == "n"){
+                } else if (respuesta == "n") {
                     jugar = false
                 }
+            }
         }
-
-
     }
     //------------------------------------------------------------------------------------------------------------------
     /**
@@ -66,7 +73,8 @@ class Juego {
      * @param ronda -> Entero que representa la ronda actual
      * @param jugadores -> Lista con el tipo de ficha de J1 y J2.
      */
-    private fun turnoJ1(tablero: Tablero, ronda:Int, jugadores: MutableList<MutableList<String>>){
+    private fun turnoJ1(tablero: Tablero, ronda:Int, jugadores: MutableList<MutableList<String>>): Boolean? {
+        var win: Boolean? = null
         val movimiento = false
         println("  --Turno J1--  ")
         while (!movimiento) {
@@ -75,14 +83,15 @@ class Juego {
             val posiciones = readln().split("-")
             val ficha = Ficha(posiciones[0].toInt(), posiciones[1].toInt(), jugadores[0][0])
             val mov = tablero.colocarFicha(ficha)
-            val win = comprobarGanador(tablero, ficha, ronda)
-            if (win){
+            win = comprobarGanador(tablero, ficha, ronda)
+            if (win == true){
+                print("J1 GANA")
                 tablero.imprimirTablero()
                 break
             }
-            if (mov == true) break
+            if (mov) break
         }
-        tablero.imprimirTablero()
+        return win
     }
     //------------------------------------------------------------------------------------------------------------------
     /**
@@ -91,7 +100,8 @@ class Juego {
      * @param ronda -> Entero que representa la ronda actual
      * @param jugadores -> Lista con el tipo de ficha de J1 y J2.
      */
-    private fun turnoJ2(tablero: Tablero, ronda: Int, jugadores: MutableList<MutableList<String>>){
+    private fun turnoJ2(tablero: Tablero, ronda: Int, jugadores: MutableList<MutableList<String>>): Boolean? {
+        var win: Boolean? = null
         val movimiento = false
         println("  --Turno J2--  ")
         while (!movimiento) {
@@ -100,34 +110,40 @@ class Juego {
             val posiciones = readln().split("-")
             val ficha = Ficha(posiciones[0].toInt(), posiciones[1].toInt(), jugadores[1][0])
             val mov = tablero.colocarFicha(ficha)
-
-            val win = comprobarGanador(tablero, ficha, ronda)
-            if (win){
+            win = comprobarGanador(tablero, ficha, ronda)
+            if (win == true){
+                print("J2 GANA")
                 tablero.imprimirTablero()
                 break
             }
-            if (mov == true) break
+            if (mov) break
         }
-        tablero.imprimirTablero()
+        return win
     }
     //------------------------------------------------------------------------------------------------------------------
 
-    private fun comprobarGanador(tablero: Tablero, ficha: Ficha, ronda: Int) : Boolean {
-        if (ronda >= 3) {
+    private fun comprobarGanador(tablero: Tablero, ficha: Ficha, ronda: Int) : Boolean? {
+        var win = false
+        if (ronda > 3) {
             for (i in 1..3) {
-                return if (tablero.contenido[i][0].isNotBlank() == tablero.contenido[i][1].isNotBlank() && tablero.contenido[i][1].isNotBlank() == tablero.contenido[i][2].isNotBlank()) {
-                    true
+                if (tablero.contenido[i][0].isNotBlank() == tablero.contenido[i][1].isNotBlank() && tablero.contenido[i][1].isNotBlank() == tablero.contenido[i][2].isNotBlank()) {
+                    win = true
+                    return win
                 } else if (tablero.contenido[0][i].isNotBlank() == tablero.contenido[1][i].isNotBlank() && tablero.contenido[1][i].isNotBlank() == tablero.contenido[2][i].isNotBlank()) {
-                    true
+                    win = true
+                    return win
                 } else if (tablero.contenido[0][0].isNotBlank() == tablero.contenido[1][1].isNotBlank() && tablero.contenido[1][1].isNotBlank() == tablero.contenido[2][2].isNotBlank()) {
-                    true
+                    win = true
+                    return win
                 } else if (tablero.contenido[0][2].isNotBlank() == tablero.contenido[1][1].isNotBlank() && tablero.contenido[1][1].isNotBlank() == tablero.contenido[2][0].isNotBlank()) {
-                    true
+                    win = true
+                    return win
                 } else {
-                    false
+                    win = false
+                    return win
                 }
             }
         }
-        return false
+        return null
     }
 }
