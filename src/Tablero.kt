@@ -1,8 +1,8 @@
 class Tablero() {
     var contenido = listOf<MutableList<String>>(
-        mutableListOf<String>("", "", ""),
-        mutableListOf<String>("", "", ""),
-        mutableListOf<String>("", "", "")
+        mutableListOf<String>(" ", " ", " "),
+        mutableListOf<String>(" ", " ", " "),
+        mutableListOf<String>(" ", " ", " ")
     )
 
     fun imprimirTablero() {
@@ -14,7 +14,14 @@ class Tablero() {
             println()
         }
     }
-    fun colocarFicha(ficha: Ficha){
-        contenido[ficha.posx][ficha.posy] = ficha.tipo
+    fun colocarFicha(ficha: Ficha): Boolean{
+        if (contenido[ficha.posx-1][ficha.posy-1] == " "){
+            contenido[ficha.posx-1][ficha.posy-1] = ficha.tipo
+            return true
+        }
+        else{
+            println("No se puede colocar una ficha ahí")
+            return false
+        }
     }
 }
