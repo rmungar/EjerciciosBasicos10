@@ -1,4 +1,9 @@
 fun main() {
-    val Tablero1 = Tablero()
-    Tablero1.imprimirTablero()
+    try {
+        val Tablero1 = Tablero()
+        Tablero1.imprimirTablero()
+    }
+    catch (e:Exception) {
+        print(e.message)
+    }
 }

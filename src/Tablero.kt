@@ -1,5 +1,4 @@
 class Tablero() {
-    var proporcion: Int = 3
     var contenido = listOf<MutableList<String>>(
         mutableListOf<String>("", "", ""),
         mutableListOf<String>("", "", ""),
@@ -14,5 +13,8 @@ class Tablero() {
             }
             println()
         }
+    }
+    fun colocarFicha(ficha: Ficha){
+        contenido[ficha.posx][ficha.posy] = ficha.tipo
     }
 }
