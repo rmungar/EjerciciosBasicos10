@@ -1,13 +1,24 @@
 class Juego {
     fun juego(tablero: Tablero){
         var ronda = 1
-        val ganador = false
         val tipos = mutableListOf<String>("Cara","Cruz")
-        while (!ganador) {
-            turnoJ1(tablero,tipos, ronda)
-            turnoJ2(tablero,tipos, ronda)
+        val jugadores = elegirTipo(tipos)
+        var jugar = true
+        while (jugar)
+            turnoJ1(tablero, ronda, jugadores)
+            turnoJ2(tablero, ronda, jugadores)
             ronda += 1
+            if (ronda >= 5){
+                println("¿Quereís seguir jugando? (s/n)")
+                val respuesta = readln().lowercase()
+                if (respuesta == "s"){
+                    tablero.reset(tablero)
+                }
+                else if (respuesta == "n"){
+                    jugar = false
+                }
         }
+
 
     }
     //------------------------------------------------------------------------------------------------------------------
@@ -16,21 +27,29 @@ class Juego {
      * @param tipos -> Lista sencilla con "Cara" y "Cruz" dentro.
      * @return J1 -> La opción que ha seleccionado J1.
      */
-    private fun elegirTipo(tipos: MutableList<String>): String{
-        var J1 = ""
+    private fun elegirTipo(tipos: MutableList<String>): MutableList<MutableList<String>> {
+        val jugadores = mutableListOf<MutableList<String>>()
+        val J2 = mutableListOf<String>()
+        val J1 = mutableListOf<String>()
         var elegido = false
-        while (elegido == false) {
-            print("¿Quieres ser cara o cruz? ")
+        while (!elegido) {
+            print("J1, ¿Quieres ser cara o cruz? ")
             val tipo = readln().lowercase().replaceFirstChar { it -> it.uppercase() }
             when (tipo) {
                 "Cara" -> {
-                    J1 = "Cara"
+                    J1.add(tipos[0])
                     tipos.remove("Cara")
+                    J2.add(tipos[0])
+                    jugadores.add(J1)
+                    jugadores.add(J2)
                     elegido = true
                 }
                 "Cruz" -> {
-                    J1 = "Cruz"
+                    J1.add(tipos[1])
                     tipos.remove("Cruz")
+                    J2.add(tipos[0])
+                    jugadores.add(J1)
+                    jugadores.add(J2)
                     elegido = true
                 }
                 else -> {
@@ -38,28 +57,30 @@ class Juego {
                 }
             }
         }
-        return J1
+        return jugadores
     }
     //------------------------------------------------------------------------------------------------------------------
     /**
      * turnoJ1 recoge el flujo de acciones que el J1 realiza en su turno
      * @param tablero -> Tablero de juego.
-     * @param tipos -> Lista sencilla con "Cara" y "Cruz" dentro.
      * @param ronda -> Entero que representa la ronda actual
+     * @param jugadores -> Lista con el tipo de ficha de J1 y J2.
      */
-    private fun turnoJ1(tablero: Tablero, tipos: MutableList<String>, ronda:Int){
-        var movimiento = false
+    private fun turnoJ1(tablero: Tablero, ronda:Int, jugadores: MutableList<MutableList<String>>){
+        val movimiento = false
         println("  --Turno J1--  ")
-        var J1 = ""
-        if (ronda == 1){
-            J1 = elegirTipo(tipos)
-        }
         while (!movimiento) {
             tablero.imprimirTablero()
             print("¿Dónde quieres colocar la ficha? ")
             val posiciones = readln().split("-")
-            val ficha = Ficha(posiciones[0].toInt(), posiciones[1].toInt(), J1)
-            movimiento = tablero.colocarFicha(ficha)
+            val ficha = Ficha(posiciones[0].toInt(), posiciones[1].toInt(), jugadores[0][0])
+            val mov = tablero.colocarFicha(ficha)
+            val win = comprobarGanador(tablero, ficha, ronda)
+            if (win){
+                tablero.imprimirTablero()
+                break
+            }
+            if (mov == true) break
         }
         tablero.imprimirTablero()
     }
@@ -67,36 +88,44 @@ class Juego {
     /**
      * turnoJ2 recoge el flujo de acciones que el J2 realiza en su turno
      * @param tablero -> Tablero de juego.
-     * @param tipos -> Lista sencilla con "Cara" y "Cruz" dentro.
      * @param ronda -> Entero que representa la ronda actual
+     * @param jugadores -> Lista con el tipo de ficha de J1 y J2.
      */
-    private fun turnoJ2(tablero: Tablero, tipos: MutableList<String>, ronda: Int){
-        var movimiento = false
+    private fun turnoJ2(tablero: Tablero, ronda: Int, jugadores: MutableList<MutableList<String>>){
+        val movimiento = false
         println("  --Turno J2--  ")
-        val J2 = tipos[0]
         while (!movimiento) {
             tablero.imprimirTablero()
             print("¿Dónde quieres colocar la ficha? ")
             val posiciones = readln().split("-")
-            val ficha = Ficha(posiciones[0].toInt(), posiciones[1].toInt(), J2)
-            movimiento = tablero.colocarFicha(ficha)
+            val ficha = Ficha(posiciones[0].toInt(), posiciones[1].toInt(), jugadores[1][0])
+            val mov = tablero.colocarFicha(ficha)
+
+            val win = comprobarGanador(tablero, ficha, ronda)
+            if (win){
+                tablero.imprimirTablero()
+                break
+            }
+            if (mov == true) break
         }
         tablero.imprimirTablero()
     }
     //------------------------------------------------------------------------------------------------------------------
 
-    private fun comprobarGanador(tablero: Tablero, ficha: Ficha, ronda: Int) : Boolean{
-        for(i in 1..3){
-            return if (tablero.contenido[i][0]==tablero.contenido[i][1] && tablero.contenido[i][1]==tablero.contenido[i][2]){
-                true
-            } else if (tablero.contenido[0][i]==tablero.contenido[1][i] && tablero.contenido[1][i]==tablero.contenido[2][i]){
-                true
-            } else if (tablero.contenido[0][0]==tablero.contenido[1][1] && tablero.contenido[1][1]==tablero.contenido[2][2]){
-                true
-            } else if (tablero.contenido[0][2]==tablero.contenido[1][1] && tablero.contenido[1][1]==tablero.contenido[2][0]){
-                true
-            } else{
-                false
+    private fun comprobarGanador(tablero: Tablero, ficha: Ficha, ronda: Int) : Boolean {
+        if (ronda >= 3) {
+            for (i in 1..3) {
+                return if (tablero.contenido[i][0].isNotBlank() == tablero.contenido[i][1].isNotBlank() && tablero.contenido[i][1].isNotBlank() == tablero.contenido[i][2].isNotBlank()) {
+                    true
+                } else if (tablero.contenido[0][i].isNotBlank() == tablero.contenido[1][i].isNotBlank() && tablero.contenido[1][i].isNotBlank() == tablero.contenido[2][i].isNotBlank()) {
+                    true
+                } else if (tablero.contenido[0][0].isNotBlank() == tablero.contenido[1][1].isNotBlank() && tablero.contenido[1][1].isNotBlank() == tablero.contenido[2][2].isNotBlank()) {
+                    true
+                } else if (tablero.contenido[0][2].isNotBlank() == tablero.contenido[1][1].isNotBlank() && tablero.contenido[1][1].isNotBlank() == tablero.contenido[2][0].isNotBlank()) {
+                    true
+                } else {
+                    false
+                }
             }
         }
         return false
