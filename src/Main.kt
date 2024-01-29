@@ -1,8 +1,8 @@
 fun main() {
     try {
-        val Tablero1 = Tablero()
+        val tablero = Tablero()
         val partida = Juego()
-        partida.juego(Tablero1)
+        partida.juego(tablero)
     }
     catch (e:Exception) {
         print(e.message)
